@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Galactic Snack Generator 🚀🍩</title>
+  <meta name="description" content="A fun random snack generator from across the universe." />
+
+  <style>
+    :root{
+      --bg: #070a16;
+      --panel: rgba(255,255,255,0.07);
+      --panel-2: rgba(255,255,255,0.12);
+      --text: #eef0f6;
+      --muted: #aab0c0;
+      --accent: #70f0ff;
+      --accent2: #b28bff;
+      --good: #34d399;
+      --warn: #fbbf24;
+      --bad: #fb7185;
+      --radius: 18px;
+      color-scheme: dark;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      color: var(--text);
+      background:
+        radial-gradient(1200px 700px at 10% -10%, rgba(112,240,255,0.20), transparent 60%),
+        radial-gradient(1000px 800px at 90% 10%, rgba(178,139,255,0.22), transparent 55%),
+        var(--bg);
+      min-height:100vh;
+      overflow-x:hidden;
+    }
+    .wrap{ max-width:1100px; margin:0 auto; padding:18px; }
+
+    header{
+      position: sticky; top:0; z-index:10;
+      backdrop-filter: blur(10px);
+      background: rgba(7,10,22,0.7);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .nav{
+      display:flex; align-items:center; justify-content:space-between;
+      padding:10px 4px;
+    }
+    .brand{
+      display:flex; align-items:center; gap:10px; font-weight:800;
+      letter-spacing:0.4px;
+    }
+    .planet{
+      width:14px; height:14px; border-radius:999px;
+      background: conic-gradient(from 120deg, var(--accent), var(--accent2), var(--accent));
+      box-shadow: 0 0 18px rgba(112,240,255,0.9);
+    }
+    .nav small{ color:var(--muted); font-weight:600; }
+
+    main{ padding:16px 0 40px; }
+
+    .grid{
+      display:grid; grid-template-columns: 1.2fr 0.8fr; gap:14px;
+    }
+    @media (max-width: 900px){
+      .grid{ grid-template-columns:1fr; }
+    }
+
+    .card{
+      background: var(--panel);
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius: var(--radius);
+      padding:16px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+      position:relative;
+      overflow:hidden;
+    }
+    .glow{
+      position:absolute; inset:-60% -30% auto auto;
+      width:420px; height:420px; border-radius:50%;
+      filter: blur(25px);
+      background: radial-gradient(circle, rgba(112,240,255,0.25), transparent 60%);
+      pointer-events:none;
+    }
+    h1{
+      font-size: clamp(26px, 3.8vw, 40px);
+      margin:0 0 6px;
+    }
+    .sub{ color:var(--muted); margin-bottom:10px; }
+
+    .badge-row{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; }
+    .badge{
+      font-size:12px; font-weight:700;
+      padding:4px 8px; border-radius:999px;
+      background: rgba(255,255,255,0.08);
+      border:1px solid rgba(255,255,255,0.12);
+      color:#e8ebf6;
+    }
+
+    .snack-box{
+      display:grid; grid-template-columns: 1fr auto; gap:10px; align-items:center;
+      background: var(--panel-2);
+      border:1px solid rgba(255,255,255,0.12);
+      border-radius:14px;
+      padding:12px;
+      margin:10px 0;
+    }
+    .snack-name{
+      font-size: clamp(18px, 2.2vw, 24px);
+      font-weight:900;
+      letter-spacing:0.3px;
+    }
+    .snack-desc{ color:var(--muted); font-size:14px; }
+
+    .btn-row{ display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+    button{
+      appearance:none; border:none; color:var(--text);
+      background: var(--panel-2);
+      padding:10px 12px; border-radius:12px;
+      font-weight:800; letter-spacing:0.2px; cursor:pointer;
+      border:1px solid rgba(255,255,255,0.15);
+      transition: 140ms ease;
+    }
+    button:hover{ transform: translateY(-1px); border-color: rgba(255,255,255,0.35); }
+    .primary{
+      background: linear-gradient(120deg, rgba(112,240,255,0.18), rgba(178,139,255,0.18));
+      border-color: rgba(112,240,255,0.55);
+    }
+
+    .rating{
+      display:flex; gap:6px; align-items:center; font-size:14px; color:var(--muted);
+    }
+    .stars span{
+      font-size:22px; cursor:pointer; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.7));
+      transition: 80ms ease;
+    }
+    .stars span:hover{ transform: scale(1.12); }
+
+    .log{
+      display:flex; flex-direction:column; gap:8px; max-height:360px; overflow:auto; padding-right:4px;
+    }
+    .log-item{
+      background: rgba(0,0,0,0.35);
+      border:1px solid rgba(255,255,255,0.08);
+      padding:10px; border-radius:12px;
+      display:flex; justify-content:space-between; align-items:center; gap:8px;
+      font-size:14px;
+    }
+    .log-item small{ color:var(--muted); }
+
+    .pill{
+      font-size:12px; font-weight:900; padding:4px 8px; border-radius:999px;
+      border:1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.06);
+      letter-spacing:0.2px;
+    }
+    .good{ color:var(--good); border-color: rgba(52,211,153,0.35); }
+    .warn{ color:var(--warn); border-color: rgba(251,191,36,0.35); }
+    .bad{ color:var(--bad); border-color: rgba(251,113,133,0.35); }
+
+    /* Beam animation */
+    .beam{
+      position:fixed; left:50%; top:50%;
+      transform: translate(-50%,-50%);
+      pointer-events:none;
+      font-size: 44px;
+      opacity:0;
+      z-index:999;
+      filter: drop-shadow(0 8px 30px rgba(112,240,255,0.9));
+    }
+    .beam.show{
+      animation: beamUp 1.2s ease forwards;
+    }
+    @keyframes beamUp{
+      0%{ opacity:0; transform: translate(-50%,20%) scale(0.6); }
+      20%{ opacity:1; transform: translate(-50%,-10%) scale(1.1); }
+      100%{ opacity:0; transform: translate(-50%,-65%) scale(1.2); }
+    }
+
+    /* Confetti canvas */
+    canvas{
+      position:fixed; inset:0; pointer-events:none; z-index:998;
+    }
+
+    footer{
+      color:var(--muted); font-size:12px; text-align:center; padding:10px 0 20px;
+    }
+    .tiny{ font-size:12px; color:var(--muted); }
+  </style>
+</head>
+
+<body>
+<header>
+  <div class="wrap nav">
+    <div class="brand">
+      <div class="planet"></div>
+      <div>
+        Galactic Snack Generator
+        <div class="tiny">because Earth snacks are basic</div>
+      </div>
+    </div>
+    <small id="stardate"></small>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="grid">
+    <!-- LEFT: Generator -->
+    <section class="card">
+      <div class="glow"></div>
+
+      <div class="badge-row">
+        <div class="badge">Random</div>
+        <div class="badge">Delicious-ish</div>
+        <div class="badge">100% Fictional</div>
+        <div class="badge">0% Calories*</div>
+      </div>
+
+      <h1 id="snackTitle">Click “Summon Snack” ✨</h1>
+      <div class="sub" id="snackSubtitle">Your next interstellar craving awaits.</div>
+
+      <div class="snack-box">
+        <div>
+          <div class="snack-name" id="snackName">—</div>
+          <div class="snack-desc" id="snackDesc">—</div>
+        </div>
+        <div style="font-size:48px" id="snackEmoji">🪐</div>
+      </div>
+
+      <div class="rating">
+        Rate this snack:
+        <div class="stars" id="stars"></div>
+        <span id="ratingValue">0/5</span>
+      </div>
+
+      <div class="btn-row">
+        <button class="primary" id="summonBtn">Summon Snack</button>
+        <button id="favoriteBtn" disabled>Save to Favorites</button>
+        <button id="beamBtn" disabled>Beam to Crew</button>
+        <button id="rerollBtn" disabled>Mutate Flavor</button>
+      </div>
+
+      <p class="tiny" style="margin-top:10px">
+        *Calories not scientifically verified by any galaxy.
+      </p>
+    </section>
+
+    <!-- RIGHT: Favorites + mini stats -->
+    <aside class="card" style="display:flex;flex-direction:column;gap:12px">
+      <h2 style="margin:0;font-size:18px">Favorites Log</h2>
+      <div class="log" id="log"></div>
+
+      <div class="snack-box" style="grid-template-columns:1fr;gap:6px">
+        <div class="tiny">Your crew’s vibe so far:</div>
+        <div id="vibeLine" style="font-weight:800">No snacks yet. Don’t starve them.</div>
+      </div>
+
+      <button id="clearBtn">Clear Log</button>
+    </aside>
+  </div>
+</main>
+
+<div class="beam" id="beam">🍩</div>
+<canvas id="confetti"></canvas>
+
+<footer>
+  Built for fun. If you actually invent these snacks, please invite me.
+</footer>
+
+<script>
+  // ====== RANDOM SNACK PARTS ======
+  const bases = [
+    "Nebula Noodles", "Comet Croissant", "Asteroid Arepas", "Quantum Quesadilla",
+    "Plasma Pancakes", "Lunar Lumpia", "Solar Samosa", "Wormhole Waffles",
+    "Saturn Rings (onion rings but fancy)", "Meteorite Mochi", "Cosmic Cornbread"
+  ];
+  const flavors = [
+    "stardust cinnamon", "black-hole chocolate", "zero-gravity vanilla",
+    "ionized mango", "asteroid almond", "galactic garlic butter",
+    "nebula berry", "supernova sriracha", "moon-salt caramel", "plutonium pineapple (safe-ish)"
+  ];
+  const toppings = [
+    "with anti-matter sprinkles", "drizzled in aurora syrup",
+    "topped with crunchy comet shards", "served in a mini UFO bowl",
+    "with a side of polite alien salsa", "covered in glittering frost",
+    "rolled in meteor sugar", "under a tiny edible dome",
+    "with time-travel truffle crumbs"
+  ];
+  const textures = [
+    "crispy on the outside, floaty inside",
+    "soft like a cloud that knows your secrets",
+    "spicy enough to start a small revolution",
+    "sweet in a confusing but lovable way",
+    "mysteriously crunchy in the 4th dimension"
+  ];
+  const emojis = ["🍩","🥟","🥐","🧇","🥞","🌮","🍙","🍜","🍪","🫓","🍡","🍿"];
+
+  let currentSnack = null;
+  let currentRating = 0;
+  let favorites = [];
+
+  // ====== UI HOOKS ======
+  const snackTitle = document.getElementById("snackTitle");
+  const snackSubtitle = document.getElementById("snackSubtitle");
+  const snackName = document.getElementById("snackName");
+  const snackDesc = document.getElementById("snackDesc");
+  const snackEmoji = document.getElementById("snackEmoji");
+  const starsEl = document.getElementById("stars");
+  const ratingValue = document.getElementById("ratingValue");
+  const logEl = document.getElementById("log");
+  const vibeLine = document.getElementById("vibeLine");
+
+  const summonBtn = document.getElementById("summonBtn");
+  const favoriteBtn = document.getElementById("favoriteBtn");
+  const beamBtn = document.getElementById("beamBtn");
+  const rerollBtn = document.getElementById("rerollBtn");
+  const clearBtn = document.getElementById("clearBtn");
+
+  // ====== STARDATE ======
+  const stardate = document.getElementById("stardate");
+  function updateStardate(){
+    const now = new Date();
+    stardate.textContent = "Stardate " + now.toISOString().slice(0,10);
+  }
+  updateStardate();
+
+  // ====== HELPERS ======
+  const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+  const id = () => Math.random().toString(36).slice(2,10);
+
+  function makeSnack(){
+    const base = pick(bases);
+    const flavor = pick(flavors);
+    const topping = pick(toppings);
+    const texture = pick(textures);
+    const emoji = pick(emojis);
+
+    return {
+      id: id(),
+      name: `${base} of ${flavor}`,
+      desc: `${topping} — ${texture}.`,
+      emoji,
+      rating: 0,
+      time: new Date().toLocaleTimeString()
+    };
+  }
+
+  // ====== STARS UI ======
+  function renderStars(){
+    starsEl.innerHTML = "";
+    for(let i=1;i<=5;i++){
+      const s = document.createElement("span");
+      s.textContent = i<=currentRating ? "⭐" : "☆";
+      s.onclick = ()=>{ currentRating=i; ratingValue.textContent=`${i}/5`; renderStars(); };
+      starsEl.appendChild(s);
+    }
+  }
+  renderStars();
+
+  // ====== MAIN ACTIONS ======
+  function showSnack(snack){
+    currentSnack = snack;
+    currentRating = 0;
+
+    snackTitle.textContent = "Your Snack Has Arrived 🚀";
+    snackSubtitle.textContent = "Proceed with bravery and napkins.";
+    snackName.textContent = snack.name;
+    snackDesc.textContent = snack.desc;
+    snackEmoji.textContent = snack.emoji;
+
+    ratingValue.textContent = "0/5";
+    renderStars();
+
+    favoriteBtn.disabled = false;
+    beamBtn.disabled = false;
+    rerollBtn.disabled = false;
+  }
+
+  summonBtn.onclick = ()=>{
+    showSnack(makeSnack());
+    popConfetti(90);
+  };
+
+  rerollBtn.onclick = ()=>{
+    if(!currentSnack) return;
+    // mutate only flavor + topping
+    currentSnack.name = `${currentSnack.name.split(" of ")[0]} of ${pick(flavors)}`;
+    currentSnack.desc = `${pick(toppings)} — ${pick(textures)}.`;
+    snackName.textContent = currentSnack.name;
+    snackDesc.textContent = currentSnack.desc;
+    popConfetti(50);
+  };
+
+  favoriteBtn.onclick = ()=>{
+    if(!currentSnack) return;
+    currentSnack.rating = currentRating;
+    favorites.unshift({...currentSnack});
+    favorites = favorites.slice(0,12);
+    renderLog();
+    updateVibe();
+    popConfetti(70);
+  };
+
+  beamBtn.onclick = ()=>{
+    if(!currentSnack) return;
+    beamSnack(currentSnack.emoji);
+    popConfetti(60);
+  };
+
+  clearBtn.onclick = ()=>{
+    favorites = [];
+    renderLog();
+    updateVibe();
+  };
+
+  function renderLog(){
+    logEl.innerHTML = "";
+    if(favorites.length===0){
+      logEl.innerHTML = `<div class="tiny">No favorites yet. Your crew is judging you.</div>`;
+      return;
+    }
+    favorites.forEach(sn=>{
+      const div = document.createElement("div");
+      div.className = "log-item";
+      const label = sn.rating>=4 ? "Legendary" : sn.rating>=2 ? "Respectable" : "Suspicious";
+      const cls = sn.rating>=4 ? "good" : sn.rating>=2 ? "warn" : "bad";
+      div.innerHTML = `
+        <div>
+          <strong>${sn.emoji} ${sn.name}</strong><br>
+          <small>${sn.time} • Rated ${sn.rating || 0}/5</small>
+        </div>
+        <span class="pill ${cls}">${label}</span>
+      `;
+      logEl.appendChild(div);
+    });
+  }
+
+  function updateVibe(){
+    if(favorites.length===0){
+      vibeLine.textContent = "No snacks yet. Don’t starve them.";
+      return;
+    }
+    const avg = favorites.reduce((a,b)=>a+(b.rating||0),0)/favorites.length;
+    if(avg>=4) vibeLine.textContent = "Crew morale: ✨THRIVING✨";
+    else if(avg>=2.5) vibeLine.textContent = "Crew morale: 🙂 stable-ish";
+    else vibeLine.textContent = "Crew morale: 😬 concerned";
+  }
+  updateVibe();
+
+  // ====== BEAM EFFECT ======
+  const beamEl = document.getElementById("beam");
+  function beamSnack(emoji){
+    beamEl.textContent = emoji;
+    beamEl.classList.remove("show");
+    void beamEl.offsetWidth; // restart animation
+    beamEl.classList.add("show");
+  }
+
+  // ====== CONFETTI (tiny canvas fun) ======
+  const canvas = document.getElementById("confetti");
+  const ctx = canvas.getContext("2d");
+  let confetti = [];
+  function resize(){
+    canvas.width = innerWidth;
+    canvas.height = innerHeight;
+  }
+  addEventListener("resize", resize);
+  resize();
+
+  function popConfetti(n=80){
+    for(let i=0;i<n;i++){
+      confetti.push({
+        x: Math.random()*canvas.width,
+        y: -20,
+        r: 2+Math.random()*4,
+        vx: -2+Math.random()*4,
+        vy: 2+Math.random()*6,
+        rot: Math.random()*Math.PI,
+        vr: -0.1+Math.random()*0.2,
+        life: 100+Math.random()*60
+      });
+    }
+  }
+
+  function tick(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    confetti = confetti.filter(p=>p.life>0);
+    confetti.forEach(p=>{
+      p.x+=p.vx; p.y+=p.vy; p.rot+=p.vr; p.life-=1;
+      ctx.save();
+      ctx.translate(p.x,p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = `hsl(${(p.life*3)%360}, 90%, 70%)`;
+      ctx.fillRect(-p.r,-p.r,p.r*2,p.r*2);
+      ctx.restore();
+    });
+    requestAnimationFrame(tick);
+  }
+  tick();
+</script>
+</body>
+</html>
